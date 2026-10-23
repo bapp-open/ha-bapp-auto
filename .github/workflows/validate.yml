@@ -16,6 +16,8 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # The brands check requires an entry in home-assistant/brands; see README.
+          ignore: brands
 
   hassfest:
     name: Hassfest validation

@@ -1,4 +1,4 @@
-"""Config flow: host + personal API token, with reauth and a polling-interval option."""
+"""Config flow: personal API token, with reauth and a polling-interval option."""
 
 from __future__ import annotations
 
@@ -21,25 +21,24 @@ from homeassistant.helpers.selector import (
 
 from .api import BappAutoAuthError, BappAutoClient, BappAutoConnectionError, BappAutoError
 from .const import (
-    CONF_HOST,
+    API_HOST,
     CONF_SCAN_INTERVAL,
     CONF_TOKEN,
-    DEFAULT_HOST,
     DEFAULT_SCAN_INTERVAL_MINUTES,
     DOMAIN,
     MIN_SCAN_INTERVAL_MINUTES,
 )
 
-TOKEN_SELECTOR = TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))
+TOKEN_SCHEMA = vol.Schema({vol.Required(CONF_TOKEN): TextSelector(TextSelectorConfig(type=TextSelectorType.PASSWORD))})
 
 
-def _unique_id(host: str, token: str) -> str:
-    return hashlib.sha256(f"{host.rstrip('/')}|{token}".encode()).hexdigest()[:16]
+def _unique_id(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()[:16]
 
 
-async def _validate(flow: ConfigFlow, host: str, token: str) -> dict[str, str]:
+async def _validate(flow: ConfigFlow, token: str) -> dict[str, str]:
     """Return a dict of form errors (empty when the token works)."""
-    client = BappAutoClient(async_get_clientsession(flow.hass), host, token)
+    client = BappAutoClient(async_get_clientsession(flow.hass), API_HOST, token)
     try:
         await client.async_validate()
     except BappAutoAuthError:
@@ -65,20 +64,13 @@ class BappAutoConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         errors: dict[str, str] = {}
         if user_input is not None:
-            host = user_input[CONF_HOST].strip().rstrip("/")
             token = user_input[CONF_TOKEN].strip()
-            await self.async_set_unique_id(_unique_id(host, token))
+            await self.async_set_unique_id(_unique_id(token))
             self._abort_if_unique_id_configured()
-            errors = await _validate(self, host, token)
+            errors = await _validate(self, token)
             if not errors:
-                return self.async_create_entry(title="BAPP Auto", data={CONF_HOST: host, CONF_TOKEN: token})
-        schema = vol.Schema(
-            {
-                vol.Required(CONF_TOKEN): TOKEN_SELECTOR,
-                vol.Required(CONF_HOST, default=(user_input or {}).get(CONF_HOST, DEFAULT_HOST)): str,
-            }
-        )
-        return self.async_show_form(step_id="user", data_schema=schema, errors=errors)
+                return self.async_create_entry(title="BAPP Auto", data={CONF_TOKEN: token})
+        return self.async_show_form(step_id="user", data_schema=TOKEN_SCHEMA, errors=errors)
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> ConfigFlowResult:
         self._reauth_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
@@ -87,22 +79,16 @@ class BappAutoConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         assert self._reauth_entry is not None
         errors: dict[str, str] = {}
-        host = self._reauth_entry.data.get(CONF_HOST, DEFAULT_HOST)
         if user_input is not None:
             token = user_input[CONF_TOKEN].strip()
-            errors = await _validate(self, host, token)
+            errors = await _validate(self, token)
             if not errors:
                 return self.async_update_reload_and_abort(
                     self._reauth_entry,
                     data={**self._reauth_entry.data, CONF_TOKEN: token},
-                    unique_id=_unique_id(host, token),
+                    unique_id=_unique_id(token),
                 )
-        return self.async_show_form(
-            step_id="reauth_confirm",
-            data_schema=vol.Schema({vol.Required(CONF_TOKEN): TOKEN_SELECTOR}),
-            description_placeholders={"host": host},
-            errors=errors,
-        )
+        return self.async_show_form(step_id="reauth_confirm", data_schema=TOKEN_SCHEMA, errors=errors)
 
 
 class BappAutoOptionsFlow(OptionsFlow):

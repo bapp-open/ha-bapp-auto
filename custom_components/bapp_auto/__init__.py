@@ -16,10 +16,9 @@ from homeassistant.helpers.typing import ConfigType
 
 from .api import BappAutoAuthError, BappAutoClient, BappAutoError
 from .const import (
+    API_HOST,
     ATTR_MILEAGE,
-    CONF_HOST,
     CONF_TOKEN,
-    DEFAULT_HOST,
     DOMAIN,
     PLATFORMS,
     SERVICE_REFRESH,
@@ -37,7 +36,7 @@ UPDATE_MILEAGE_SCHEMA = vol.Schema(
         vol.Required(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string]),
         vol.Required(ATTR_MILEAGE): vol.All(vol.Coerce(int), vol.Range(min=0, max=5_000_000)),
     },
-    extra=vol.ALLOW_EXTRA,  # the target selector may also pass entity_id / area_id
+    extra=vol.ALLOW_EXTRA,
 )
 
 REFRESH_SCHEMA = vol.Schema({vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string])}, extra=vol.ALLOW_EXTRA)
@@ -100,7 +99,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BappAutoConfigEntry) -> bool:
-    client = BappAutoClient(async_get_clientsession(hass), entry.data.get(CONF_HOST, DEFAULT_HOST), entry.data[CONF_TOKEN])
+    client = BappAutoClient(async_get_clientsession(hass), API_HOST, entry.data[CONF_TOKEN])
     try:
         await client.async_validate()
     except BappAutoAuthError as err:

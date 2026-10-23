@@ -31,7 +31,7 @@ one that is valid the longest.
 
 ## Services
 
-- `bapp_auto.update_mileage` — set the odometer of a car (target: the car device).
+- `bapp_auto.update_mileage` — set the odometer of one or more cars (pick the car devices).
 - `bapp_auto.refresh` — fetch the latest data now instead of waiting for the next poll.
 
 ## Installation
@@ -52,8 +52,8 @@ restart Home Assistant.
 1. In the BAPP Auto app open **Settings → Integrations → Home Assistant** and copy the
    personal API token.
 2. In Home Assistant go to **Settings → Devices & services → Add integration → BAPP Auto**
-   and paste the token. Leave the server as `https://panel.bapp.ro` unless you run
-   your own bapp instance.
+   and paste the token. The integration always talks to `https://panel.bapp.ro`,
+   the same cloud the app uses.
 
 The token identifies your account only; it never gives access to a company's bapp data.
 Revoking it in the app disconnects Home Assistant, which will then ask for a new one.

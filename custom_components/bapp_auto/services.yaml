@@ -1,8 +1,12 @@
 update_mileage:
-  target:
-    device:
-      integration: bapp_auto
   fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          multiple: true
+          filter:
+            integration: bapp_auto
     mileage:
       required: true
       example: 123456
@@ -15,6 +19,11 @@ update_mileage:
           unit_of_measurement: km
 
 refresh:
-  target:
-    device:
-      integration: bapp_auto
+  fields:
+    device_id:
+      required: false
+      selector:
+        device:
+          multiple: true
+          filter:
+            integration: bapp_auto

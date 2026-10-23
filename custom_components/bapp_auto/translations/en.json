@@ -5,17 +5,15 @@
         "title": "Connect your BAPP Auto account",
         "description": "Paste the personal API token from the BAPP Auto app (Settings → Integrations → Home Assistant). Every car you own or that was shared with you becomes a device.",
         "data": {
-          "token": "API token",
-          "host": "Server"
+          "token": "API token"
         },
         "data_description": {
-          "token": "A UUID like 123e4567-e89b-12d3-a456-426614174000. It is stored only in Home Assistant.",
-          "host": "Leave the default unless you run your own bapp server."
+          "token": "A UUID like 123e4567-e89b-12d3-a456-426614174000. It is stored only in Home Assistant."
         }
       },
       "reauth_confirm": {
         "title": "Token rejected",
-        "description": "The token for {host} no longer works. Generate a new one in the BAPP Auto app and paste it here.",
+        "description": "The token no longer works. Generate a new one in the BAPP Auto app and paste it here.",
         "data": {
           "token": "API token"
         }
@@ -46,8 +44,12 @@
   },
   "entity": {
     "sensor": {
-      "mileage": { "name": "Mileage" },
-      "mileage_updated": { "name": "Mileage updated" },
+      "mileage": {
+        "name": "Mileage"
+      },
+      "mileage_updated": {
+        "name": "Mileage updated"
+      },
       "status": {
         "name": "Documents status",
         "state": {
@@ -57,17 +59,31 @@
           "unknown": "No documents"
         }
       },
-      "document_days_left": { "name": "{document} days left" },
-      "document_expiration": { "name": "{document} expiration" },
-      "next_service_date": { "name": "{service} due date" },
-      "next_service_mileage": { "name": "{service} due mileage" }
+      "document_days_left": {
+        "name": "{document} days left"
+      },
+      "document_expiration": {
+        "name": "{document} expiration"
+      },
+      "next_service_date": {
+        "name": "{service} due date"
+      },
+      "next_service_mileage": {
+        "name": "{service} due mileage"
+      }
     },
     "binary_sensor": {
-      "document_attention": { "name": "{document} needs attention" },
-      "car_attention": { "name": "Needs attention" }
+      "document_attention": {
+        "name": "{document} needs attention"
+      },
+      "car_attention": {
+        "name": "Needs attention"
+      }
     },
     "image": {
-      "photo": { "name": "Photo" }
+      "photo": {
+        "name": "Photo"
+      }
     }
   },
   "services": {
@@ -75,6 +91,10 @@
       "name": "Update mileage",
       "description": "Sets the odometer value of a car in BAPP Auto.",
       "fields": {
+        "device_id": {
+          "name": "Car",
+          "description": "The car (or cars) whose odometer to set."
+        },
         "mileage": {
           "name": "Mileage",
           "description": "The full odometer value in km. Values with 3 digits or fewer are treated by the server as the last three digits of the current mileage."
@@ -83,12 +103,24 @@
     },
     "refresh": {
       "name": "Refresh",
-      "description": "Fetches the latest cars and documents right away instead of waiting for the next poll."
+      "description": "Fetches the latest cars and documents right away instead of waiting for the next poll.",
+      "fields": {
+        "device_id": {
+          "name": "Cars",
+          "description": "Leave empty to refresh every connected account."
+        }
+      }
     }
   },
   "exceptions": {
-    "device_not_found": { "message": "Device {device_id} does not exist." },
-    "not_a_car": { "message": "Device {device_id} is not a BAPP Auto car." },
-    "entry_not_loaded": { "message": "The BAPP Auto integration is not loaded." }
+    "device_not_found": {
+      "message": "Device {device_id} does not exist."
+    },
+    "not_a_car": {
+      "message": "Device {device_id} is not a BAPP Auto car."
+    },
+    "entry_not_loaded": {
+      "message": "The BAPP Auto integration is not loaded."
+    }
   }
 }

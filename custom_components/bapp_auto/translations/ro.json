@@ -5,17 +5,15 @@
         "title": "Conectează contul BAPP Auto",
         "description": "Lipește token-ul API personal din aplicația BAPP Auto (Setări → Integrări → Home Assistant). Fiecare mașină pe care o deții sau care ți-a fost partajată devine un dispozitiv.",
         "data": {
-          "token": "Token API",
-          "host": "Server"
+          "token": "Token API"
         },
         "data_description": {
-          "token": "Un UUID de forma 123e4567-e89b-12d3-a456-426614174000. Rămâne doar în Home Assistant.",
-          "host": "Lasă valoarea implicită dacă nu ai propriul server bapp."
+          "token": "Un UUID de forma 123e4567-e89b-12d3-a456-426614174000. Rămâne doar în Home Assistant."
         }
       },
       "reauth_confirm": {
         "title": "Token respins",
-        "description": "Token-ul pentru {host} nu mai funcționează. Generează unul nou în aplicația BAPP Auto și lipește-l aici.",
+        "description": "Token-ul nu mai funcționează. Generează unul nou în aplicația BAPP Auto și lipește-l aici.",
         "data": {
           "token": "Token API"
         }
@@ -46,8 +44,12 @@
   },
   "entity": {
     "sensor": {
-      "mileage": { "name": "Kilometraj" },
-      "mileage_updated": { "name": "Kilometraj actualizat la" },
+      "mileage": {
+        "name": "Kilometraj"
+      },
+      "mileage_updated": {
+        "name": "Kilometraj actualizat la"
+      },
       "status": {
         "name": "Stare documente",
         "state": {
@@ -57,17 +59,31 @@
           "unknown": "Fără documente"
         }
       },
-      "document_days_left": { "name": "{document} zile rămase" },
-      "document_expiration": { "name": "{document} expiră la" },
-      "next_service_date": { "name": "{service} scadent la" },
-      "next_service_mileage": { "name": "{service} scadent la km" }
+      "document_days_left": {
+        "name": "{document} zile rămase"
+      },
+      "document_expiration": {
+        "name": "{document} expiră la"
+      },
+      "next_service_date": {
+        "name": "{service} scadent la"
+      },
+      "next_service_mileage": {
+        "name": "{service} scadent la km"
+      }
     },
     "binary_sensor": {
-      "document_attention": { "name": "{document} necesită atenție" },
-      "car_attention": { "name": "Necesită atenție" }
+      "document_attention": {
+        "name": "{document} necesită atenție"
+      },
+      "car_attention": {
+        "name": "Necesită atenție"
+      }
     },
     "image": {
-      "photo": { "name": "Fotografie" }
+      "photo": {
+        "name": "Fotografie"
+      }
     }
   },
   "services": {
@@ -75,6 +91,10 @@
       "name": "Actualizează kilometrajul",
       "description": "Setează kilometrajul unei mașini în BAPP Auto.",
       "fields": {
+        "device_id": {
+          "name": "Mașină",
+          "description": "Mașina (sau mașinile) al cărei kilometraj se setează."
+        },
         "mileage": {
           "name": "Kilometraj",
           "description": "Valoarea completă a bordului, în km. Valorile de cel mult 3 cifre sunt tratate de server ca ultimele trei cifre ale kilometrajului curent."
@@ -83,12 +103,24 @@
     },
     "refresh": {
       "name": "Reîmprospătează",
-      "description": "Aduce imediat mașinile și documentele, fără să aștepte următoarea interogare."
+      "description": "Aduce imediat mașinile și documentele, fără să aștepte următoarea interogare.",
+      "fields": {
+        "device_id": {
+          "name": "Mașini",
+          "description": "Lasă gol ca să reîmprospătezi toate conturile conectate."
+        }
+      }
     }
   },
   "exceptions": {
-    "device_not_found": { "message": "Dispozitivul {device_id} nu există." },
-    "not_a_car": { "message": "Dispozitivul {device_id} nu este o mașină BAPP Auto." },
-    "entry_not_loaded": { "message": "Integrarea BAPP Auto nu este încărcată." }
+    "device_not_found": {
+      "message": "Dispozitivul {device_id} nu există."
+    },
+    "not_a_car": {
+      "message": "Dispozitivul {device_id} nu este o mașină BAPP Auto."
+    },
+    "entry_not_loaded": {
+      "message": "Integrarea BAPP Auto nu este încărcată."
+    }
   }
 }

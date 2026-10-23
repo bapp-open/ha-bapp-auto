@@ -6,11 +6,11 @@ from datetime import timedelta
 
 DOMAIN = "bapp_auto"
 
-CONF_HOST = "host"
 CONF_TOKEN = "token"
 CONF_SCAN_INTERVAL = "scan_interval"
 
-DEFAULT_HOST = "https://panel.bapp.ro"
+# The bapp cloud the BAPP Auto app talks to; not user-configurable.
+API_HOST = "https://panel.bapp.ro"
 DEFAULT_SCAN_INTERVAL_MINUTES = 30
 MIN_SCAN_INTERVAL_MINUTES = 5
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=DEFAULT_SCAN_INTERVAL_MINUTES)
