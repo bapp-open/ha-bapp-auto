@@ -1,0 +1,20 @@
+update_mileage:
+  target:
+    device:
+      integration: bapp_auto
+  fields:
+    mileage:
+      required: true
+      example: 123456
+      selector:
+        number:
+          min: 0
+          max: 5000000
+          step: 1
+          mode: box
+          unit_of_measurement: km
+
+refresh:
+  target:
+    device:
+      integration: bapp_auto

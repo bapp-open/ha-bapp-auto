@@ -1,0 +1,12 @@
+{
+  "domain": "bapp_auto",
+  "name": "BAPP Auto",
+  "codeowners": ["@bapp-open"],
+  "config_flow": true,
+  "documentation": "https://github.com/bapp-open/ha-bapp-auto",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/bapp-open/ha-bapp-auto/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}

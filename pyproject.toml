@@ -1,0 +1,19 @@
+[project]
+name = "ha-bapp-auto"
+version = "0.1.0"
+description = "Home Assistant integration for BAPP Auto"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8", "yarl>=1.9", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 140
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
