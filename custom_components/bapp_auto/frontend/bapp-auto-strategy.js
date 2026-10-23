@@ -315,8 +315,13 @@ export function carCardConfig(hass, config) {
 
 // ---------------------------------------------------------------------------
 // Browser registration (skipped under Node so the functions above stay testable)
+//
+// The frontend loads this module next to its own bundles, so it usually runs
+// before the app installs its custom-elements polyfill. Elements defined before
+// that are invisible to the patched `customElements.get`, so registration waits
+// for the app root element, which is only defined once the polyfill is in place.
 // ---------------------------------------------------------------------------
-if (typeof customElements !== "undefined" && typeof HTMLElement !== "undefined") {
+function registerElements() {
   const define = (tag, cls) => {
     if (!customElements.get(tag)) customElements.define(tag, cls);
   };
@@ -401,4 +406,9 @@ if (typeof customElements !== "undefined" && typeof HTMLElement !== "undefined")
   }
 
   console.info(`%c BAPP Auto %c ${VERSION} `, "background:#0f172a;color:#fff;border-radius:3px 0 0 3px", "background:#2563eb;color:#fff;border-radius:0 3px 3px 0");
+}
+
+if (typeof customElements !== "undefined" && typeof HTMLElement !== "undefined") {
+  const appReady = customElements.get("home-assistant") ? Promise.resolve() : customElements.whenDefined("home-assistant");
+  appReady.then(registerElements).catch((err) => console.error("BAPP Auto: could not register Lovelace elements", err));
 }
