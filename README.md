@@ -60,9 +60,51 @@ Revoking it in the app disconnects Home Assistant, which will then ask for a new
 **Options:** the refresh interval (default 30 minutes, minimum 5). Documents change
 rarely, so there is no need to poll often.
 
-## Dashboard ideas
+## Dashboard
 
-A picture card per car with the status overlaid:
+The integration ships a Lovelace **strategy** and a **card**, loaded automatically.
+Nothing to add under *Resources*.
+
+### Automatic dashboard
+
+**Settings → Dashboards → Add dashboard → New dashboard from scratch**, open it, then
+⋮ → **Edit dashboard** → ⋮ → **Raw configuration editor** and paste:
+
+```yaml
+strategy:
+  type: custom:bapp-auto
+```
+
+You get one section per car: the photo with the documents status overlaid, a colored
+tile per document (green / amber / red by expiry), the mileage and upcoming service,
+plus a section for personal documents. Cars and documents added later appear by
+themselves. Options:
+
+```yaml
+strategy:
+  type: custom:bapp-auto
+  title: Mașini            # dashboard and view title
+  max_columns: 2           # sections per row (default 3)
+  personal_documents: false
+```
+
+The same strategy works for a single **view** inside an existing dashboard
+(`strategy:` at the view level). *Take control* turns the generated dashboard into
+plain built-in cards you can edit.
+
+### One car anywhere
+
+```yaml
+type: custom:bapp-auto-car
+device: 0123456789abcdef   # the car's device id (pick it in the card editor)
+```
+
+`entity: sensor.<any entity of the car>` or `car: <id from the app>` work too;
+`name:` overrides the title and `columns:` the tile grid width (default 2).
+
+### Hand-made card
+
+The entities work with any built-in card as well:
 
 ```yaml
 type: picture-entity
@@ -92,6 +134,7 @@ actions:
 
 ```bash
 uv run --with pytest --with yarl pytest       # model tests, no Home Assistant needed
+node --test "tests/frontend/*.test.mjs"       # strategy / card config tests
 ```
 
 The CI runs the HACS and hassfest validators on every push.

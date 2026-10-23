@@ -33,3 +33,7 @@ SERVICE_REFRESH = "refresh"
 ATTR_MILEAGE = "mileage"
 
 PLATFORMS = ["sensor", "binary_sensor", "image"]
+
+# Lovelace strategy + car card, served from custom_components/bapp_auto/frontend.
+FRONTEND_URL_PATH = f"/{DOMAIN}_static"
+FRONTEND_SCRIPT = "bapp-auto-strategy.js"

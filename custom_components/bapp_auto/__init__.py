@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import voluptuous as vol
+from homeassistant.components.frontend import add_extra_js_url
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import HomeAssistant, ServiceCall, callback
@@ -13,6 +16,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_integration
 
 from .api import BappAutoAuthError, BappAutoClient, BappAutoError
 from .const import (
@@ -20,6 +24,8 @@ from .const import (
     ATTR_MILEAGE,
     CONF_TOKEN,
     DOMAIN,
+    FRONTEND_SCRIPT,
+    FRONTEND_URL_PATH,
     PLATFORMS,
     SERVICE_REFRESH,
     SERVICE_UPDATE_MILEAGE,
@@ -42,8 +48,17 @@ UPDATE_MILEAGE_SCHEMA = vol.Schema(
 REFRESH_SCHEMA = vol.Schema({vol.Optional(ATTR_DEVICE_ID): vol.All(cv.ensure_list, [cv.string])}, extra=vol.ALLOW_EXTRA)
 
 
+async def _async_register_frontend(hass: HomeAssistant) -> None:
+    """Serve the Lovelace strategy / car card module and load it on every dashboard."""
+    frontend_dir = Path(__file__).parent / "frontend"
+    await hass.http.async_register_static_paths([StaticPathConfig(FRONTEND_URL_PATH, str(frontend_dir), cache_headers=True)])
+    integration = await async_get_integration(hass, DOMAIN)
+    add_extra_js_url(hass, f"{FRONTEND_URL_PATH}/{FRONTEND_SCRIPT}?v={integration.version}")
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the domain services once; they look up the right entry per device."""
+    """Register the frontend module and the domain services once."""
+    await _async_register_frontend(hass)
 
     @callback
     def _resolve_car(device_id: str) -> tuple[BappAutoCoordinator, int]:
