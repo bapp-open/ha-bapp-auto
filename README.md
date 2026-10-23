@@ -52,8 +52,7 @@ restart Home Assistant.
 1. In the BAPP Auto app open **Settings → Integrations → Home Assistant** and copy the
    personal API token.
 2. In Home Assistant go to **Settings → Devices & services → Add integration → BAPP Auto**
-   and paste the token. The integration always talks to `https://panel.bapp.ro`,
-   the same cloud the app uses.
+   and paste the token.
 
 The token identifies your account only; it never gives access to a company's bapp data.
 Revoking it in the app disconnects Home Assistant, which will then ask for a new one.
