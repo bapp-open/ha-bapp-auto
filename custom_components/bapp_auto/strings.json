@@ -1,32 +1,29 @@
 {
   "config": {
     "step": {
-      "user": {
-        "title": "Connect your BAPP Auto account",
-        "description": "Paste the personal API token from the BAPP Auto app (Settings → Integrations → Home Assistant). Every car you own or that was shared with you becomes a device.",
-        "data": {
-          "token": "API token"
-        },
-        "data_description": {
-          "token": "A UUID like 123e4567-e89b-12d3-a456-426614174000. It is stored only in Home Assistant."
-        }
+      "pick_implementation": {
+        "title": "Choose how to log in"
       },
       "reauth_confirm": {
-        "title": "Token rejected",
-        "description": "The token no longer works. Generate a new one in the BAPP Auto app and paste it here.",
-        "data": {
-          "token": "API token"
-        }
+        "title": "Log in again",
+        "description": "Home Assistant can no longer access your BAPP Auto account ({account}). Log in again with your BAPP account to reconnect."
       }
     },
-    "error": {
-      "invalid_auth": "The token was rejected. Check it or generate a new one in the app.",
-      "cannot_connect": "Could not reach the server.",
-      "unknown": "Unexpected error, see the Home Assistant log."
-    },
     "abort": {
-      "already_configured": "This account is already configured.",
-      "reauth_successful": "The token was updated."
+      "already_configured": "This BAPP account is already connected.",
+      "reauth_successful": "Logged in again.",
+      "wrong_account": "You logged in with a different BAPP account than the one configured. Log in with the same account, or add a new integration entry.",
+      "missing_configuration": "OAuth is not configured; restart Home Assistant and try again.",
+      "authorize_url_timeout": "Timed out generating the login URL.",
+      "no_url_available": "No URL available. See the Home Assistant documentation on my.home-assistant.io redirects.",
+      "oauth_error": "The login server returned an invalid response.",
+      "oauth_timeout": "The login timed out.",
+      "oauth_unauthorized": "The login was rejected.",
+      "oauth_failed": "The login failed.",
+      "user_rejected_authorize": "You cancelled the login."
+    },
+    "create_entry": {
+      "default": "Logged in. Your cars will show up in a moment."
     }
   },
   "options": {

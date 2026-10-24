@@ -12,6 +12,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_DEVICE_ID
 from homeassistant.core import HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady, HomeAssistantError, ServiceValidationError
+from homeassistant.helpers import config_entry_oauth2_flow
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -22,10 +23,12 @@ from .api import BappAutoAuthError, BappAutoClient, BappAutoError
 from .const import (
     API_HOST,
     ATTR_MILEAGE,
-    CONF_TOKEN,
     DOMAIN,
     FRONTEND_SCRIPT,
     FRONTEND_URL_PATH,
+    OAUTH_AUTHORIZE_URL,
+    OAUTH_CLIENT_ID,
+    OAUTH_TOKEN_URL,
     PLATFORMS,
     SERVICE_REFRESH,
     SERVICE_UPDATE_MILEAGE,
@@ -57,7 +60,12 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Register the frontend module and the domain services once."""
+    """Register the OAuth client, the frontend module and the domain services once."""
+    config_entry_oauth2_flow.async_register_implementation(
+        hass,
+        DOMAIN,
+        config_entry_oauth2_flow.LocalOAuth2ImplementationWithPkce(hass, DOMAIN, OAUTH_CLIENT_ID, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL),
+    )
     await _async_register_frontend(hass)
 
     @callback
@@ -114,7 +122,20 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: BappAutoConfigEntry) -> bool:
-    client = BappAutoClient(async_get_clientsession(hass), API_HOST, entry.data[CONF_TOKEN])
+    if "token" not in entry.data or not isinstance(entry.data["token"], dict):
+        # Entries from 0.1/0.2 held a personal API token; the OAuth login replaces it.
+        raise ConfigEntryAuthFailed("Login with the BAPP account is required")
+    try:
+        implementation = await config_entry_oauth2_flow.async_get_config_entry_implementation(hass, entry)
+    except config_entry_oauth2_flow.ImplementationUnavailableError as err:
+        raise ConfigEntryNotReady(str(err)) from err
+    oauth_session = config_entry_oauth2_flow.OAuth2Session(hass, entry, implementation)
+
+    async def _authorization() -> str:
+        await oauth_session.async_ensure_token_valid()
+        return f"Bearer {oauth_session.token['access_token']}"
+
+    client = BappAutoClient(async_get_clientsession(hass), API_HOST, _authorization)
     try:
         await client.async_validate()
     except BappAutoAuthError as err:
@@ -146,6 +167,13 @@ def _prune_stale_devices(hass: HomeAssistant, entry: ConfigEntry, coordinator: B
 
 async def _async_options_updated(hass: HomeAssistant, entry: ConfigEntry) -> None:
     await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Version 1 entries carried a personal token; keep them and let setup ask for the OAuth login."""
+    if entry.version == 1:
+        hass.config_entries.async_update_entry(entry, version=2)
+    return True
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: BappAutoConfigEntry) -> bool:

@@ -1,32 +1,29 @@
 {
   "config": {
     "step": {
-      "user": {
-        "title": "Conectează contul BAPP Auto",
-        "description": "Lipește token-ul API personal din aplicația BAPP Auto (Setări → Integrări → Home Assistant). Fiecare mașină pe care o deții sau care ți-a fost partajată devine un dispozitiv.",
-        "data": {
-          "token": "Token API"
-        },
-        "data_description": {
-          "token": "Un UUID de forma 123e4567-e89b-12d3-a456-426614174000. Rămâne doar în Home Assistant."
-        }
+      "pick_implementation": {
+        "title": "Alege cum te autentifici"
       },
       "reauth_confirm": {
-        "title": "Token respins",
-        "description": "Token-ul nu mai funcționează. Generează unul nou în aplicația BAPP Auto și lipește-l aici.",
-        "data": {
-          "token": "Token API"
-        }
+        "title": "Autentifică-te din nou",
+        "description": "Home Assistant nu mai are acces la contul tău BAPP Auto ({account}). Autentifică-te din nou cu contul BAPP pentru a reconecta."
       }
     },
-    "error": {
-      "invalid_auth": "Token-ul a fost respins. Verifică-l sau generează unul nou în aplicație.",
-      "cannot_connect": "Serverul nu a putut fi contactat.",
-      "unknown": "Eroare neașteptată, vezi jurnalul Home Assistant."
-    },
     "abort": {
-      "already_configured": "Acest cont este deja configurat.",
-      "reauth_successful": "Token-ul a fost actualizat."
+      "already_configured": "Acest cont BAPP este deja conectat.",
+      "reauth_successful": "Autentificare reușită.",
+      "wrong_account": "Te-ai autentificat cu alt cont BAPP decât cel configurat. Folosește același cont sau adaugă o intrare nouă.",
+      "missing_configuration": "OAuth nu este configurat; repornește Home Assistant și încearcă din nou.",
+      "authorize_url_timeout": "A expirat generarea adresei de autentificare.",
+      "no_url_available": "Nicio adresă disponibilă. Vezi documentația Home Assistant despre redirect-urile my.home-assistant.io.",
+      "oauth_error": "Serverul de autentificare a răspuns invalid.",
+      "oauth_timeout": "Autentificarea a expirat.",
+      "oauth_unauthorized": "Autentificarea a fost respinsă.",
+      "oauth_failed": "Autentificarea a eșuat.",
+      "user_rejected_authorize": "Ai anulat autentificarea."
+    },
+    "create_entry": {
+      "default": "Autentificat. Mașinile tale vor apărea imediat."
     }
   },
   "options": {

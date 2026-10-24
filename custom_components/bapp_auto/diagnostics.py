@@ -8,10 +8,9 @@ from typing import Any
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_TOKEN
 from .coordinator import BappAutoConfigEntry
 
-TO_REDACT = {CONF_TOKEN, "vin", "license_plate", "document_number", "photo_url"}
+TO_REDACT = {"token", "access_token", "refresh_token", "id_token", "vin", "license_plate", "document_number", "photo_url"}
 
 
 async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: BappAutoConfigEntry) -> dict[str, Any]:

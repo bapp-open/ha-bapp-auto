@@ -49,13 +49,13 @@ restart Home Assistant.
 
 ## Setup
 
-1. In the BAPP Auto app open **Settings → Integrations → Home Assistant** and copy the
-   personal API token.
-2. In Home Assistant go to **Settings → Devices & services → Add integration → BAPP Auto**
-   and paste the token.
+1. **Settings → Devices & services → Add integration → BAPP Auto**.
+2. Home Assistant sends you to the BAPP login page (the same account as the app). Log in.
+3. You are sent back; the integration is created and named after your account.
 
-The token identifies your account only; it never gives access to a company's bapp data.
-Revoking it in the app disconnects Home Assistant, which will then ask for a new one.
+Every car you own or that was shared with you becomes a device. Nothing to copy or
+paste: Home Assistant keeps a refresh token and renews access by itself. If the
+login ever stops working, Home Assistant asks you to log in again.
 
 **Options:** the refresh interval (default 30 minutes, minimum 5). Documents change
 rarely, so there is no need to poll often.

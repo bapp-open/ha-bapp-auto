@@ -11,7 +11,7 @@
  */
 
 export const DOMAIN = "bapp_auto";
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
 const PLACEHOLDER = "/bapp_auto_static/car-placeholder.svg";
 
 const STATUS_COLOR = { ok: "green", expiring_soon: "amber", expired: "red", unknown: "grey" };

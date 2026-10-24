@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import aiohttp
@@ -13,13 +14,16 @@ from .const import APP_SLUG, MAX_PAGES, REQUEST_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
+# Returns the value of the Authorization header, refreshing credentials if needed.
+type AuthProvider = Callable[[], Awaitable[str]]
+
 
 class BappAutoError(Exception):
     """Base error."""
 
 
 class BappAutoAuthError(BappAutoError):
-    """The token was rejected."""
+    """The credentials were rejected."""
 
 
 class BappAutoConnectionError(BappAutoError):
@@ -27,26 +31,30 @@ class BappAutoConnectionError(BappAutoError):
 
 
 class BappAutoClient:
-    """Calls the generic content-type and task endpoints with a personal API token."""
+    """Calls the generic content-type and task endpoints with a bearer token."""
 
-    def __init__(self, session: aiohttp.ClientSession, host: str, token: str) -> None:
+    def __init__(self, session: aiohttp.ClientSession, host: str, auth: AuthProvider) -> None:
         self._session = session
         self.host = host.rstrip("/")
         self._api = URL(self.host) / "api"
-        self._token = token
+        self._auth = auth
 
-    @property
-    def _headers(self) -> dict[str, str]:
-        return {
-            "Authorization": f"Token {self._token}",
-            "X-App-Slug": APP_SLUG,
-            "Accept": "application/json",
-        }
+    async def _headers(self) -> dict[str, str]:
+        try:
+            authorization = await self._auth()
+        except aiohttp.ClientResponseError as err:
+            if err.status in (400, 401, 403):
+                raise BappAutoAuthError(f"Token refresh rejected: HTTP {err.status}") from err
+            raise BappAutoConnectionError(f"Token refresh failed: {err}") from err
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise BappAutoConnectionError(f"Token refresh failed: {err}") from err
+        return {"Authorization": authorization, "X-App-Slug": APP_SLUG, "Accept": "application/json"}
 
     async def _request(self, method: str, url: URL, **kwargs: Any) -> Any:
+        headers = await self._headers()
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
-                response = await self._session.request(method, url, headers=self._headers, **kwargs)
+                response = await self._session.request(method, url, headers=headers, **kwargs)
                 if response.status in (401, 403, 498):
                     raise BappAutoAuthError(f"HTTP {response.status} for {url.path}")
                 if response.status >= 400:
@@ -60,7 +68,7 @@ class BappAutoClient:
         return self._api / "content-type" / content_type / ""
 
     async def async_validate(self) -> None:
-        """Raise if the token cannot list the account's cars."""
+        """Raise if the credentials cannot list the account's cars."""
         await self._request("GET", self._content_type_url("bapp_auto.car").with_query(page_size=1))
 
     async def async_list(self, content_type: str, **params: Any) -> list[dict[str, Any]]:
@@ -88,9 +96,9 @@ class BappAutoClient:
         return data
 
     async def async_fetch_bytes(self, url: str) -> tuple[bytes, str | None]:
-        """Download a media file. The token goes only to our own host."""
+        """Download a media file. Credentials go only to our own host."""
         target = URL(url)
-        headers = self._headers if target.host == self._api.host else {}
+        headers = await self._headers() if target.host == self._api.host else {}
         try:
             async with asyncio.timeout(REQUEST_TIMEOUT):
                 response = await self._session.get(target, headers=headers)

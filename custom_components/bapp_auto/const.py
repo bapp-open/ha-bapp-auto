@@ -6,11 +6,17 @@ from datetime import timedelta
 
 DOMAIN = "bapp_auto"
 
-CONF_TOKEN = "token"
 CONF_SCAN_INTERVAL = "scan_interval"
 
 # The bapp cloud the BAPP Auto app talks to; not user-configurable.
 API_HOST = "https://panel.bapp.ro"
+
+# Login goes through the same Keycloak as the app, with a public PKCE client
+# whose only redirect is Home Assistant's my.home-assistant.io relay.
+OAUTH_CLIENT_ID = "bapp-home-assistant"
+OAUTH_AUTHORIZE_URL = "https://id.bapp.ro/realms/bapp/protocol/openid-connect/auth"
+OAUTH_TOKEN_URL = "https://id.bapp.ro/realms/bapp/protocol/openid-connect/token"
+OAUTH_SCOPES = "openid profile email offline_access"
 DEFAULT_SCAN_INTERVAL_MINUTES = 30
 MIN_SCAN_INTERVAL_MINUTES = 5
 DEFAULT_SCAN_INTERVAL = timedelta(minutes=DEFAULT_SCAN_INTERVAL_MINUTES)
