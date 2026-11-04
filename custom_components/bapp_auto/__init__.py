@@ -26,15 +26,13 @@ from .const import (
     DOMAIN,
     FRONTEND_SCRIPT,
     FRONTEND_URL_PATH,
-    OAUTH_AUTHORIZE_URL,
-    OAUTH_CLIENT_ID,
-    OAUTH_TOKEN_URL,
     PLATFORMS,
     SERVICE_REFRESH,
     SERVICE_UPDATE_MILEAGE,
     TASK_UPDATE_MILEAGE,
 )
 from .coordinator import BappAutoConfigEntry, BappAutoCoordinator
+from .oauth import async_register_oauth_implementation
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -61,11 +59,7 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the OAuth client, the frontend module and the domain services once."""
-    config_entry_oauth2_flow.async_register_implementation(
-        hass,
-        DOMAIN,
-        config_entry_oauth2_flow.LocalOAuth2ImplementationWithPkce(hass, DOMAIN, OAUTH_CLIENT_ID, OAUTH_AUTHORIZE_URL, OAUTH_TOKEN_URL),
-    )
+    async_register_oauth_implementation(hass)
     await _async_register_frontend(hass)
 
     @callback

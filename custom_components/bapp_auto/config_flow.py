@@ -20,6 +20,7 @@ from .const import (
     MIN_SCAN_INTERVAL_MINUTES,
     OAUTH_SCOPES,
 )
+from .oauth import async_register_oauth_implementation
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,6 +43,11 @@ class BappAutoConfigFlow(config_entry_oauth2_flow.AbstractOAuth2FlowHandler, dom
     def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
         return BappAutoOptionsFlow()
 
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        # async_setup only runs once a config entry exists, so the first flow has to register the client itself.
+        async_register_oauth_implementation(self.hass)
+        return await super().async_step_user(user_input)
+
     async def async_oauth_create_entry(self, data: dict[str, Any]) -> ConfigFlowResult:
         unique_id, title = account_identity(data["token"])
         if unique_id:
@@ -61,7 +67,13 @@ class BappAutoConfigFlow(config_entry_oauth2_flow.AbstractOAuth2FlowHandler, dom
 
     async def async_step_reauth_confirm(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         if user_input is None:
-            return self.async_show_form(step_id="reauth_confirm", data_schema=vol.Schema({}))
+            entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+            assert entry is not None
+            return self.async_show_form(
+                step_id="reauth_confirm",
+                data_schema=vol.Schema({}),
+                description_placeholders={"account": entry.title},
+            )
         return await self.async_step_user()
 
 
