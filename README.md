@@ -108,8 +108,8 @@ The entities work with any built-in card as well:
 
 ```yaml
 type: picture-entity
-entity: sensor.dacia_duster_documents_status
-image_entity: image.dacia_duster_photo
+entity: image.dacia_duster_photo
+show_state: false
 name: Dacia Duster · B 123 ABC
 ```
 

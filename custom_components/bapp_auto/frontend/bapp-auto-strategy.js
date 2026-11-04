@@ -190,7 +190,11 @@ export function pictureCard(hass, car) {
     fit_mode: "cover",
     tap_action: { action: "more-info" },
   };
-  if (car.photo) card.image_entity = car.photo;
+  // picture-entity takes its picture from `entity` only when that is an image entity;
+  // any other entity needs a URL in `image`, and `image_entity` is not an option here.
+  const statusPicture = car.status && (hass.states[car.status] || {}).attributes?.entity_picture;
+  if (statusPicture) card.image = statusPicture;
+  else if (car.photo) Object.assign(card, { entity: car.photo, show_state: false });
   else card.image = PLACEHOLDER;
   return card;
 }

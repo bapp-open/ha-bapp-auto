@@ -5,6 +5,7 @@ import {
   carCardConfig,
   carDevices,
   carSection,
+  pictureCard,
   classifyEntity,
   collectCar,
   documentColor,
@@ -108,7 +109,9 @@ test("carSection uses the photo entity, a status badge and full-width picture", 
   assert.equal(heading.badges[0].entity, "sensor.duster_status");
   assert.equal(heading.badges[0].color, "amber");
   assert.equal(picture.type, "picture-entity");
-  assert.equal(picture.image_entity, "image.duster_photo");
+  assert.equal(picture.entity, "image.duster_photo");
+  assert.equal(picture.show_state, false);
+  assert.equal(picture.image_entity, undefined);
   assert.equal(picture.image, undefined);
   assert.deepEqual(picture.grid_options, { columns: "full" });
   // 3 documents + mileage + 1 service
@@ -116,6 +119,17 @@ test("carSection uses the photo entity, a status badge and full-width picture", 
   assert.equal(tiles[0].name, "Rovinieta");
   assert.equal(tiles[0].color, "red");
   assert.equal(tiles[3].entity, "sensor.duster_mileage");
+});
+
+test("the status sensor's picture keeps the status overlaid on the photo", () => {
+  const hass = makeHass();
+  const url = "https://example.com/duster.png";
+  hass.states["sensor.duster_status"].attributes = { ...hass.states["sensor.duster_status"].attributes, entity_picture: url };
+  const picture = pictureCard(hass, collectCar(hass, hass.devices.dev_duster));
+  assert.equal(picture.entity, "sensor.duster_status");
+  assert.equal(picture.image, url);
+  assert.equal(picture.show_state, true);
+  assert.equal(picture.image_entity, undefined);
 });
 
 test("a car without a photo gets the placeholder image", () => {
